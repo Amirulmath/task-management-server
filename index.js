@@ -40,6 +40,19 @@ async function run(){
             res.send(result);
         });
 
+        app.patch('/alltasks/:id', async (req, res) => {
+          const id = req.params.id;
+          const status = req.body.status
+          const query = { _id: ObjectId(id) }
+          const updatedDoc = {
+              $set:{
+                  status: status
+              }
+          }
+          const result = await taskCollection.updateOne(query, updatedDoc);
+          res.send(result);
+      });
+
         app.delete('/alltasks/:id', async (req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
@@ -72,6 +85,49 @@ async function run(){
     }
 }
 run().catch(err => console.error(err));
+
+app.get("/alltasks/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      const allTask = await taskCollection.findOne({ _id: ObjectId(id) });
+  
+      res.send({
+        success: true,
+        data: allTask,
+      });
+    } catch (error) {
+      res.send({
+        success: false,
+        error: error.message,
+      });
+    }
+  });
+  
+  app.patch("/alltasks/:id", async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      const result = await taskCollection.updateOne({ _id: ObjectId(id) }, { $set: req.body });
+  
+      if (result.matchedCount) {
+        res.send({
+          success: true,
+          message: `successfully updated ${req.body.name}`,
+        });
+      } else {
+        res.send({
+          success: false,
+          error: "Couldn't update  the Task",
+        });
+      }
+    } catch (error) {
+      res.send({
+        success: false,
+        error: error.message,
+      });
+    }
+  });
 
 app.get('/', async (req, res) => {
     res.send('Task Management server is running');
