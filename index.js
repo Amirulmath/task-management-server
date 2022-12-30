@@ -40,6 +40,13 @@ async function run(){
             res.send(result);
         });
 
+        app.delete('/alltasks/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await taskCollection.deleteOne(query);
+            res.send(result);
+        });
+
         app.get('/mymedia', async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
