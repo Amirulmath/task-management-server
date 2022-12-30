@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const port = process.env.PORT || 5000;
@@ -19,11 +19,39 @@ async function run(){
     try{
         const taskCollection = client.db('taskManagement').collection('myTask');
         const mediaTaskCollection = client.db('taskManagement').collection('mediaTask');
+
+        app.get('/mytasks', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const myTasks = await taskCollection.find(query).toArray();
+            res.send(myTasks);
+        });
+
+        app.get('/alltasks', async (req, res) => {
+            const query = {};
+            const cursor = taskCollection.find(query);
+            const tasks = await cursor.toArray();
+            res.send(tasks);
+        });
         
-        app.post('/mytasks', async (req, res) => {
-            const myTasks = req.body;
-            const result = await taskCollection.insertOne(myTasks);
+        app.post('/alltasks', async (req, res) => {
+            const tasks = req.body;
+            const result = await taskCollection.insertOne(tasks);
             res.send(result);
+        });
+
+        app.get('/mymedia', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const mediaTask = await mediaTaskCollection.find(query).toArray();
+            res.send(mediaTask);
+        });
+
+        app.get('/mediatasks', async (req, res) => {
+            const query = {};
+            const cursor = mediaTaskCollection.find(query);
+            const media = await cursor.toArray();
+            res.send(media);
         });
 
         app.post('/mediatasks', async (req, res) => {
